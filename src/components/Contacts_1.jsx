@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next'; // Импорт хука
 
 const Contacts = () => {
+  const { t } = useTranslation(); // Инициализация
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -10,11 +12,12 @@ const Contacts = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Формируем массив данных с использованием переводов
   const items = [
-    { icon: '📍', label: 'Адрес', value: 'Москва, ул. Промышленная, 18' },
-    { icon: '📞', label: 'Телефон', value: '+7 (495) 123-45-67' },
-    { icon: '✉️', label: 'Email', value: 'info@zarstone.ru' },
-    { icon: '🕐', label: 'Режим работы', value: 'Пн–Пт: 9:00–18:00' },
+    { icon: '📍', label: t('contacts.address'), value: t('contacts.addressValue') },
+    { icon: '📞', label: t('contacts.phone'), value: '+7 (495) 123-45-67' },
+    { icon: '✉️', label: t('contacts.email'), value: 'info@zarstone.ru' },
+    { icon: '🕐', label: t('contacts.hours'), value: t('contacts.hoursValue') },
   ];
 
   return (
@@ -22,10 +25,10 @@ const Contacts = () => {
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(30px)', transition: 'all 0.7s', textAlign: 'center', marginBottom: '3rem' }}>
           <p style={{ color: '#c9a96e', letterSpacing: '0.4em', fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-            Связаться
+            {t('contacts.label')}
           </p>
           <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300, fontFamily: "'Cormorant Garamond', Georgia, serif", color: '#1a1a1a' }}>
-            Контакты
+            {t('contacts.title')}
           </h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.5rem', opacity: visible ? 1 : 0, transition: 'all 0.7s 0.2s' }}>

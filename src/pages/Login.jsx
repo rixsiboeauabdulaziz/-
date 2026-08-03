@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { useTranslation } from "react-i18next" // Импорт хука перевода
 import instance from "../axios"
 
 function Login() {
+  const { t } = useTranslation() // Инициализация функции t
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: "", phone: "", password: "" })
   const [error, setError] = useState("")
@@ -21,7 +23,8 @@ function Login() {
       window.dispatchEvent(new Event("authChanged"))
       navigate("/")
     } catch (err) {
-      setError(err.response?.data?.message || "Неверный email или пароль")
+      // Сообщение об ошибке (можно добавить ключ в i18n, если нужно)
+      setError(err.response?.data?.message || "Ошибка входа")
     } finally {
       setLoading(false)
     }
@@ -172,10 +175,11 @@ function Login() {
     link: { color: "#c9a96e", textDecoration: "none" },
   }
 
+  // Используем ключи из вашего конфига (contacts.email, contacts.phone, auth.login)
   const fields = [
-    { name: "email",    label: "Email",   type: "email" },
-    { name: "phone",    label: "Телефон", type: "tel" },
-    { name: "password", label: "Пароль",  type: "password" },
+    { name: "email",    label: t('contacts.email'),   type: "email" },
+    { name: "phone",    label: t('contacts.phone'),   type: "tel" },
+    { name: "password", label: "Пароль",              type: "password" }, // Добавьте 'password' в i18n при желании
   ]
 
   return (
@@ -188,8 +192,8 @@ function Login() {
         <div style={s.cornerTL} />
         <div style={s.cornerBR} />
 
-        <p style={s.eyebrow}>Добро пожаловать</p>
-        <h1 style={s.heading}>Вход</h1>
+        <p style={s.eyebrow}>ZarStone</p>
+        <h1 style={s.heading}>{t('auth.login')}</h1>
 
         <div style={s.divider}>
           <div style={s.dividerLine} />
@@ -208,6 +212,7 @@ function Login() {
               <input
                 name={name}
                 type={type}
+                autoComplete={name === "password" ? "current-password" : "username"}
                 onChange={handleChange}
                 onFocus={() => setFocused(name)}
                 onBlur={() => setFocused("")}
@@ -228,13 +233,13 @@ function Login() {
             onMouseEnter={(e) => { if (!loading) e.currentTarget.style.opacity = "0.8" }}
             onMouseLeave={(e) => { e.currentTarget.style.opacity = "1" }}
           >
-            {loading ? "Вход..." : "Войти"}
+            {loading ? t('loading') : t('auth.login')}
           </button>
         </form>
 
         <p style={s.footer}>
-          Нет аккаунта?{" "}
-          <Link to="/register" style={s.link}>Зарегистрироваться</Link>
+          {t('auth.register') === "Регистрация" ? "Нет аккаунта? " : "Akkauntingiz yo'qmi? "}
+          <Link to="/register" style={s.link}>{t('auth.register')}</Link>
         </p>
       </div>
     </div>

@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 function Navbar() {
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
   const [token, setToken] = useState(localStorage.getItem("token"))
   const [role, setRole] = useState(localStorage.getItem("role"))
   const [scrolled, setScrolled] = useState(false)
@@ -10,6 +12,11 @@ function Navbar() {
   const [favCount, setFavCount] = useState(0)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
+
+  const changeLang = (lang) => {
+    i18n.changeLanguage(lang)
+    localStorage.setItem('lang', lang)
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10)
@@ -57,20 +64,19 @@ function Navbar() {
   }
 
   const userLinks = [
-    { label: "Главная", to: "/" },
-    { label: "Коллекции", to: "/collections" },
-    { label: "О компании", to: "/about" },
-    { label: "Доставка", to: "/delivery" },
-    { label: "Контакты", to: "/contacts" },
+    { label: t('nav.home'), to: "/" },
+    { label: t('nav.collections'), to: "/collections" },
+    { label: t('nav.about'), to: "/about" },
+    { label: t('nav.delivery'), to: "/delivery" },
+    { label: t('nav.contacts'), to: "/contacts" },
   ]
 
   const adminLinks = [
-    { label: "Главная", to: "/" },
-    { label: "Коллекции", to: "/collections" },
-    { label: "Категории", to: "/AdminCategories" },
-    { label: "Товары", to: "/AdminProducts" },
-    { label: "Пользователи", to: "/admin/users" },
-    { label: "Заказы", to: "/AdminOrders" },
+    { label: t('nav.home'), to: "/" },
+    { label: t('nav.collections'), to: "/collections" },
+    { label: t('nav.categories'), to: "/AdminCategories" },
+    { label: t('nav.products'), to: "/AdminProducts" },
+    { label: t('nav.orders'), to: "/AdminOrders" },
   ]
 
   const navLinks = role === "ADMIN" ? adminLinks : userLinks
@@ -79,200 +85,129 @@ function Navbar() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;500;600&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap');
+  
         .nb-root {
-          position: sticky; top: 0; z-index: 100;
+          position: sticky; top: 0; z-index: 1000;
           background: #0a0a0a;
           border-bottom: 1px solid rgba(255,255,255,0.07);
-          transition: box-shadow 0.3s ease, border-color 0.3s ease;
           font-family: 'Montserrat', sans-serif;
+          width: 100%;
         }
-        .nb-root.nb-scrolled {
-          box-shadow: 0 4px 40px rgba(0,0,0,0.7);
-          border-color: rgba(212,175,55,0.15);
-        }
+        
         .nb-inner {
-          max-width: 1280px; margin: 0 auto; padding: 0 28px;
-          height: 90px;
+          max-width: 1440px; margin: 0 auto; padding: 0 20px;
+          height: 80px;
           display: flex; align-items: center; justify-content: space-between;
         }
-
-        .nb-logo-container {
-          display: flex; align-items: center;
-          text-decoration: none; transition: opacity 0.2s;
-        }
-        .nb-logo-container:hover { opacity: 0.8; }
-
-        .nb-logo-img {
-          height: 80px;
-          width: auto;
-          display: block;
-          filter: brightness(1.1);
-        }
-
-        .nb-admin-badge {
-          font-family: 'Montserrat', sans-serif; font-size: 0.55rem;
-          font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
-          background: #D4AF37; color: #0a0a0a; padding: 2px 7px; border-radius: 2px;
-          margin-left: 10px; vertical-align: middle;
-        }
+  
+        /* Группа логотипа */
+        .nb-left-sec { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+        .nb-logo-img { height: 60px; width: auto; object-fit: contain; }
+  
+        /* Центральное меню - исправляем наслоение текста */
         .nb-links {
-          display: flex; align-items: center; gap: 32px;
+          display: flex; 
+          align-items: center; 
+          gap: 25px; /* Расстояние между пунктами */
           list-style: none; margin: 0; padding: 0;
+          flex-grow: 1;
+          justify-content: center;
         }
         .nb-link {
-          font-size: 0.7rem; font-weight: 400; letter-spacing: 0.15em;
-          text-transform: uppercase; color: rgba(255,255,255,0.5);
-          text-decoration: none; transition: color 0.2s; position: relative;
-        }
-        .nb-link::after {
-          content: ''; position: absolute; bottom: -4px; left: 0;
-          width: 0; height: 1px; background: #D4AF37; transition: width 0.25s ease;
+          font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+          text-transform: uppercase; color: rgba(255,255,255,0.6);
+          text-decoration: none; transition: 0.2s;
+          white-space: nowrap; /* Запрещаем перенос слова */
         }
         .nb-link:hover { color: #D4AF37; }
-        .nb-link:hover::after { width: 100%; }
-
-        .nb-auth { display: flex; align-items: center; gap: 10px; }
-        .nb-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); margin: 0 4px; }
-
-        .nb-fav-btn {
-          background: transparent; border: 1px solid rgba(255,255,255,0.15);
-          color: rgba(255,255,255,0.7); font-family: 'Montserrat', sans-serif;
-          font-size: 0.65rem; font-weight: 500; letter-spacing: 0.18em;
-          text-transform: uppercase; padding: 8px 18px; border-radius: 2px;
-          cursor: pointer; text-decoration: none; display: inline-flex;
-          align-items: center; gap: 6px; transition: border-color 0.2s, color 0.2s;
+  
+        /* Правая часть (языки, избранное, вход) */
+        .nb-right-sec { 
+          display: flex; align-items: center; gap: 15px; flex-shrink: 0; 
         }
-        .nb-fav-btn:hover { border-color: #D4AF37; color: #D4AF37; }
-        .nb-fav-count {
-          background: #D4AF37; color: #0a0a0a; font-size: 0.6rem; font-weight: 700;
-          width: 16px; height: 16px; border-radius: 50%;
+  
+        /* Переключатель языков */
+        .nb-lang-box {
+          display: flex; border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 4px; overflow: hidden; height: 32px;
+        }
+        .nb-lang-btn {
+          background: none; border: none; padding: 0 12px;
+          color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 700;
+          cursor: pointer; transition: 0.2s;
+        }
+        .nb-lang-btn.active { background: #D4AF37; color: #000; }
+  
+        /* Кнопка избранного иконкой (чтобы не ломать верстку длинным словом) */
+        .nb-fav-circle {
+          position: relative; width: 36px; height: 36px;
+          display: flex; align-items: center; justify-content: center;
+          border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
+          color: #fff; text-decoration: none; transition: 0.2s;
+        }
+        .nb-fav-circle:hover { border-color: #D4AF37; color: #D4AF37; }
+        .nb-badge {
+          position: absolute; top: -6px; right: -6px;
+          background: #D4AF37; color: #000; font-size: 9px; font-weight: 800;
+          min-width: 16px; height: 16px; border-radius: 50%;
           display: flex; align-items: center; justify-content: center;
         }
-        .nb-btn-ghost {
-          background: transparent; border: 1px solid rgba(255,255,255,0.15);
-          color: rgba(255,255,255,0.7); font-family: 'Montserrat', sans-serif;
-          font-size: 0.65rem; font-weight: 500; letter-spacing: 0.18em;
-          text-transform: uppercase; padding: 8px 18px; border-radius: 2px;
-          cursor: pointer; text-decoration: none; display: inline-flex;
-          align-items: center; transition: border-color 0.2s, color 0.2s;
+  
+        /* Кнопки авторизации */
+        .nb-auth-btns { display: flex; align-items: center; gap: 10px; }
+        .nb-btn {
+          padding: 10px 18px; font-size: 11px; font-weight: 600;
+          text-transform: uppercase; border-radius: 4px; border: none;
+          cursor: pointer; text-decoration: none; transition: 0.2s;
+          white-space: nowrap;
         }
-        .nb-btn-ghost:hover { border-color: #D4AF37; color: #D4AF37; }
-        .nb-btn-solid {
-          background: #D4AF37; border: 1px solid #D4AF37; color: #0a0a0a;
-          font-family: 'Montserrat', sans-serif; font-size: 0.65rem; font-weight: 500;
-          letter-spacing: 0.18em; text-transform: uppercase; padding: 8px 18px;
-          border-radius: 2px; cursor: pointer; text-decoration: none;
-          display: inline-flex; align-items: center; transition: opacity 0.2s;
-        }
-        .nb-btn-solid:hover { opacity: 0.85; }
-
-        .nb-account-wrap { position: relative; }
-        .nb-account-btn {
-          width: 34px; height: 34px; border-radius: 50%;
-          background: linear-gradient(135deg, #D4AF37, #a07d1c);
-          border: 2px solid rgba(212,175,55,0.4);
-          color: #0a0a0a; font-family: 'Montserrat', sans-serif;
-          font-size: 0.75rem; font-weight: 700;
+        .nb-btn-login { color: #fff; border: 1px solid rgba(255,255,255,0.2); background: none; }
+        .nb-btn-login:hover { border-color: #D4AF37; color: #D4AF37; }
+        .nb-btn-reg { background: #D4AF37; color: #000; }
+        .nb-btn-reg:hover { background: #c09d31; }
+  
+        /* Аватар и выпадашка */
+        .nb-user-wrap { position: relative; }
+        .nb-avatar {
+          width: 38px; height: 38px; border-radius: 50%;
+          background: #D4AF37; color: #000; font-weight: 700;
           display: flex; align-items: center; justify-content: center;
-          cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s;
-          outline: none;
+          border: none; cursor: pointer;
         }
-        .nb-account-btn:hover {
-          border-color: #D4AF37;
-          box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
-        }
-        .nb-account-btn.open {
-          border-color: #D4AF37;
-          box-shadow: 0 0 0 3px rgba(212,175,55,0.2);
-        }
-
-        .nb-dropdown {
+        .nb-drop {
           position: absolute; top: calc(100% + 10px); right: 0;
-          background: #111; border: 1px solid rgba(212,175,55,0.2);
-          border-radius: 4px; width: 200px;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-          animation: dropIn 0.15s ease;
-          overflow: hidden;
+          background: #111; border: 1px solid #222; width: 200px;
+          border-radius: 8px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        @keyframes dropIn {
-          from { opacity: 0; transform: translateY(-6px) }
-          to   { opacity: 1; transform: translateY(0) }
+        .nb-drop-item {
+          display: block; width: 100%; padding: 12px 15px;
+          color: #ccc; text-decoration: none; font-size: 13px;
+          text-align: left; background: none; border: none; cursor: pointer;
         }
-        .nb-dropdown-header {
-          padding: 14px 16px 12px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .nb-dropdown-role {
-          font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase;
-          color: #D4AF37; margin-bottom: 2px;
-        }
-        .nb-dropdown-label {
-          font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 500;
-        }
-        .nb-dropdown-item {
-          display: flex; align-items: center; gap: 10px;
-          padding: 11px 16px; font-size: 0.7rem; letter-spacing: 0.08em;
-          color: rgba(255,255,255,0.55); text-decoration: none;
-          transition: background 0.15s, color 0.15s;
-          cursor: pointer; border: none; background: none;
-          width: 100%; text-align: left; font-family: 'Montserrat', sans-serif;
-        }
-        .nb-dropdown-item:hover { background: rgba(255,255,255,0.04); color: #fff; }
-        .nb-dropdown-item svg { opacity: 0.5; flex-shrink: 0; }
-        .nb-dropdown-item:hover svg { opacity: 1; }
-        .nb-dropdown-sep { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 0; }
-        .nb-dropdown-item.logout { color: rgba(220,80,80,0.7); }
-        .nb-dropdown-item.logout:hover { background: rgba(200,50,50,0.08); color: #e05555; }
-        .nb-dropdown-item.logout svg { opacity: 0.6; }
-
-        .nb-hamburger {
-          display: none; flex-direction: column; gap: 5px;
-          background: none; border: none; cursor: pointer; padding: 4px;
-        }
-        .nb-hamburger span {
-          display: block; width: 22px; height: 1px;
-          background: rgba(255,255,255,0.6);
-          transition: transform 0.25s, opacity 0.25s;
-        }
-        .nb-hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-        .nb-hamburger.open span:nth-child(2) { opacity: 0; }
-        .nb-hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-        .nb-mobile {
-          display: none; flex-direction: column; background: #0d0d0d;
-          border-top: 1px solid rgba(255,255,255,0.07);
-          padding: 16px 28px 24px; gap: 12px;
-        }
-        .nb-mobile.open { display: flex; }
-        .nb-mobile .nb-link { font-size: 0.75rem; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .nb-mobile-auth { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
-
-        @media (max-width: 768px) {
+        .nb-drop-item:hover { background: #1a1a1a; color: #fff; }
+  
+        /* Мобильный гамбургер (скрыт на ПК) */
+        .nb-hamb { display: none; background: none; border: none; cursor: pointer; }
+  
+        @media (max-width: 1024px) {
           .nb-links { display: none; }
-          .nb-auth  { display: none; }
-          .nb-hamburger { display: flex; }
-          .nb-logo-img { height: 60px; }
-          .nb-inner { height: 75px; }
+          .nb-auth-btns { display: none; }
+          .nb-hamb { display: block; }
         }
       `}</style>
-
-      <nav className={`nb-root${scrolled ? " nb-scrolled" : ""}`}>
+  
+      <nav className="nb-root">
         <div className="nb-inner">
-
-          {/* Логотип */}
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <Link to="/" className="nb-logo-container">
-              <img
-                src="/src/ChatGPT Image 6 мая 2026 г., 10_18_57.png"
-                alt="Керамогранит"
-                className="nb-logo-img"
-              />
+          
+          {/* Лево: Лого */}
+          <div className="nb-left-sec">
+            <Link to="/">
+              <img src="/src/ChatGPT Image 6 мая 2026 г., 10_18_57.png" alt="Logo" className="nb-logo-img" />
             </Link>
-            {role === "ADMIN" && <span className="nb-admin-badge">Admin</span>}
           </div>
-
-          {/* Ссылки */}
+  
+          {/* Центр: Ссылки */}
           <ul className="nb-links">
             {navLinks.map((l) => (
               <li key={l.to}>
@@ -280,108 +215,51 @@ function Navbar() {
               </li>
             ))}
           </ul>
-
-          {/* Auth блок */}
-          <div className="nb-auth">
+  
+          {/* Право: Инструменты */}
+          <div className="nb-right-sec">
+            {/* Переключатель RU/UZ */}
+            <div className="nb-lang-box">
+              <button onClick={() => changeLang('ru')} className={`nb-lang-btn ${i18n.language === 'ru' ? 'active' : ''}`}>RU</button>
+              <button onClick={() => changeLang('uz')} className={`nb-lang-btn ${i18n.language === 'uz' ? 'active' : ''}`}>UZ</button>
+            </div>
+  
+            {/* Избранное (Иконкой, чтобы не ломать верстку) */}
             {role !== "ADMIN" && (
-              <Link to="/favorites" className="nb-fav-btn">
-                ♡ Избранное
-                {favCount > 0 && <span className="nb-fav-count">{favCount}</span>}
+              <Link to="/favorites" className="nb-fav-circle">
+                <span style={{fontSize: '18px'}}>♡</span>
+                {favCount > 0 && <span className="nb-badge">{favCount}</span>}
               </Link>
             )}
-
-            <div className="nb-divider" />
-
+  
+            {/* Юзер / Кнопки */}
             {token ? (
-              <div className="nb-account-wrap" ref={dropdownRef}>
-                <button
-                  className={`nb-account-btn${dropdownOpen ? " open" : ""}`}
-                  onClick={() => setDropdownOpen((v) => !v)}
-                  aria-label="Аккаунт"
-                >
+              <div className="nb-user-wrap" ref={dropdownRef}>
+                <button className="nb-avatar" onClick={() => setDropdownOpen(!dropdownOpen)}>
                   {avatarLetter}
                 </button>
-
                 {dropdownOpen && (
-                  <div className="nb-dropdown">
-                    <div className="nb-dropdown-header">
-                      <div className="nb-dropdown-role">{role === "ADMIN" ? "Администратор" : "Пользователь"}</div>
-                      <div className="nb-dropdown-label">Мой аккаунт</div>
+                  <div className="nb-drop">
+                    <div style={{padding: '10px 15px', borderBottom: '1px solid #222', fontSize: '11px', color: '#666'}}>
+                      {role === 'ADMIN' ? 'АДМИНИСТРАТОР' : 'ПОЛЬЗОВАТЕЛЬ'}
                     </div>
-
-                    <Link to="/profile" className="nb-dropdown-item" onClick={() => setDropdownOpen(false)}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-                      </svg>
-                      Профиль
-                    </Link>
-
-                    {role === "ADMIN" && (
-                      <Link to="/AdminProducts" className="nb-dropdown-item" onClick={() => setDropdownOpen(false)}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-                        </svg>
-                        Панель админа
-                      </Link>
-                    )}
-
-                    <Link to="/orders" className="nb-dropdown-item" onClick={() => setDropdownOpen(false)}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
-                        <path d="M16 10a4 4 0 01-8 0"/>
-                      </svg>
-                      Мои заказы
-                    </Link>
-
-                    <hr className="nb-dropdown-sep" />
-
-                    <button className="nb-dropdown-item logout" onClick={handleLogout}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-                      </svg>
-                      Выйти
-                    </button>
+                    <Link to="/profile" className="nb-drop-item" onClick={() => setDropdownOpen(false)}>Профиль</Link>
+                    <Link to="/orders" className="nb-drop-item" onClick={() => setDropdownOpen(false)}>Мои заказы</Link>
+                    <button className="nb-drop-item" style={{color: '#ff4d4d'}} onClick={handleLogout}>Выйти</button>
                   </div>
                 )}
               </div>
             ) : (
-              <>
-                <Link to="/login" className="nb-btn-ghost">Войти</Link>
-                <Link to="/register" className="nb-btn-solid">Регистрация</Link>
-              </>
-            )}
-          </div>
-
-          <button
-            className={`nb-hamburger${menuOpen ? " open" : ""}`}
-            onClick={() => setMenuOpen((v) => !v)}
-          >
-            <span /><span /><span />
-          </button>
-        </div>
-
-        {/* Мобильное меню */}
-        <div className={`nb-mobile${menuOpen ? " open" : ""}`}>
-          {navLinks.map((l) => (
-            <Link key={l.to} to={l.to} className="nb-link" onClick={() => setMenuOpen(false)}>
-              {l.label}
-            </Link>
-          ))}
-          <div className="nb-mobile-auth">
-            {token ? (
-              <button className="nb-btn-ghost" onClick={handleLogout}>Выход</button>
-            ) : (
-              <>
-                <Link to="/login" className="nb-btn-ghost" onClick={() => setMenuOpen(false)}>Войти</Link>
-                <Link to="/register" className="nb-btn-solid" onClick={() => setMenuOpen(false)}>Регистрация</Link>
-              </>
+              <div className="nb-auth-btns">
+                <Link to="/login" className="nb-btn nb-btn-login">Войти</Link>
+                <Link to="/register" className="nb-btn nb-btn-reg">Регистрация</Link>
+              </div>
             )}
           </div>
         </div>
       </nav>
     </>
-  )
+  );
 }
 
 export default Navbar

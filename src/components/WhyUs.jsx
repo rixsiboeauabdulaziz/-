@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const useInView = () => {
   const ref = useRef(null);
@@ -13,13 +14,6 @@ const useInView = () => {
   }, []);
   return [ref, visible];
 };
-
-const reasons = [
-  { icon: '◈', title: 'Прямые поставки', desc: 'Работаем напрямую с карьерами и заводами — без посредников и лишних наценок.' },
-  { icon: '◉', title: 'Точные размеры', desc: 'Резка и обработка по вашим чертежам. Отклонение не более 0.5 мм.' },
-  { icon: '◐', title: 'Доставка по РФ', desc: 'Собственный транспорт и надёжные партнёры. Доставляем в любой регион.' },
-  { icon: '◎', title: 'Контроль качества', desc: 'Каждая партия проверяется по ГОСТ. Сертификаты на всю продукцию.' },
-];
 
 const Card = ({ r, i }) => {
   const ref = useRef(null);
@@ -49,7 +43,8 @@ const Card = ({ r, i }) => {
         padding: '2.5rem 2rem',
         cursor: 'default',
         boxShadow: hovered ? '0 20px 50px rgba(0,0,0,0.09)' : '0 2px 16px rgba(0,0,0,0.04)',
-        transition2: 'background 0.3s, box-shadow 0.3s, border-color 0.3s',
+        transitionProperty: 'background, box-shadow, border-color',
+        transitionDuration: '0.3s'
       }}
     >
       <div style={{ fontSize: '1.6rem', color: '#B8874A', marginBottom: '1.4rem', lineHeight: 1 }}>
@@ -83,7 +78,19 @@ const Card = ({ r, i }) => {
 };
 
 const WhyUs = () => {
+  const { t } = useTranslation();
   const [headRef, headVisible] = useInView();
+
+  const reasonsIcons = ['◈', '◉', '◐', '◎'];
+  
+  // Получаем данные. Если t() вернул не массив, используем пустой массив, чтобы .map не выдавал ошибку
+  const rawReasons = t('whyUs.reasons', { returnObjects: true });
+  const reasonsArray = Array.isArray(rawReasons) ? rawReasons : [];
+
+  const translatedReasons = reasonsArray.map((item, idx) => ({
+    ...item,
+    icon: reasonsIcons[idx] || '◈'
+  }));
 
   return (
     <section style={{ background: '#F5F0E8', padding: '7rem 2.5rem' }}>
@@ -92,8 +99,6 @@ const WhyUs = () => {
       `}</style>
 
       <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
-
-        {/* Header */}
         <div
           ref={headRef}
           style={{
@@ -115,7 +120,7 @@ const WhyUs = () => {
               marginBottom: '0.7rem', fontWeight: 500,
               fontFamily: "'DM Sans', sans-serif",
             }}>
-              Наши преимущества
+              {t('whyUs.label')}
             </p>
             <h2 style={{
               fontFamily: "'Playfair Display', Georgia, serif",
@@ -123,8 +128,8 @@ const WhyUs = () => {
               fontWeight: 400, color: '#0D0B09',
               lineHeight: 1.15,
             }}>
-              Почему<br />
-              <em style={{ color: '#B8874A' }}>выбирают нас</em>
+              {t('whyUs.titlePart1')}<br />
+              <em style={{ color: '#B8874A' }}>{t('whyUs.titlePart2')}</em>
             </h2>
           </div>
           <p style={{
@@ -133,23 +138,21 @@ const WhyUs = () => {
             lineHeight: 1.75, fontWeight: 300,
             fontFamily: "'DM Sans', sans-serif",
           }}>
-            Двадцать лет мы доказываем качество не словами, а каждым реализованным проектом
+            {t('whyUs.headerDesc')}
           </p>
         </div>
 
-        {/* Cards */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
           gap: '2px',
           background: 'rgba(0,0,0,0.06)',
         }}>
-          {reasons.map((r, i) => (
-            <Card key={r.title} r={r} i={i} />
+          {translatedReasons.map((r, i) => (
+            <Card key={i} r={r} i={i} />
           ))}
         </div>
 
-        {/* Bottom strip */}
         <div style={{
           marginTop: '4rem',
           padding: '2.5rem 3rem',
@@ -160,7 +163,11 @@ const WhyUs = () => {
           flexWrap: 'wrap',
           gap: '1.5rem',
         }}>
-          {[['5 000+', 'проектов'], ['47', 'регионов'], ['20', 'лет']].map(([val, lab]) => (
+          {[
+            ['5 000+', t('whyUs.stats.projects')], 
+            ['47', t('whyUs.stats.regions')], 
+            ['20', t('whyUs.stats.years')]
+          ].map(([val, lab]) => (
             <div key={lab} style={{ textAlign: 'center' }}>
               <div style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
@@ -180,10 +187,9 @@ const WhyUs = () => {
             maxWidth: '280px', lineHeight: 1.75, fontWeight: 300,
             fontFamily: "'DM Sans', sans-serif",
           }}>
-            Работаем с частными клиентами, архитекторами и крупными подрядчиками
+            {t('whyUs.footerDesc')}
           </p>
         </div>
-
       </div>
     </section>
   );

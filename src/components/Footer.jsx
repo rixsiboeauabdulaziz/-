@@ -1,15 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // Импорт хука
 
 const Footer = () => {
+  const { t } = useTranslation(); // Инициализация
   const navigate = useNavigate();
 
+  // Массив ссылок теперь берет значения из i18next
   const links = [
-    { label: 'Главная', path: '/home' },
-    { label: 'Коллекции', path: '/collections' },
-    { label: 'О компании', path: '/about' },
-    { label: 'Оплата и доставка', path: '/delivery' },
-    { label: 'Контакты', path: '/contacts' },
+    { label: t('footer.links.home'), path: '/home' },
+    { label: t('footer.links.collections'), path: '/collections' },
+    { label: t('footer.links.about'), path: '/about' },
+    { label: t('footer.links.delivery'), path: '/delivery' },
+    { label: t('footer.links.contacts'), path: '/contacts' },
   ];
 
   return (
@@ -19,7 +22,9 @@ const Footer = () => {
           <div style={{ color: '#b48c5a', fontSize: '1.4rem', fontWeight: 300, letterSpacing: '0.4em', fontFamily: "'Cormorant Garamond', Georgia, serif", marginBottom: '0.4rem' }}>
             ZARSTONE
           </div>
-          <div style={{ color: '#444', fontSize: '0.75rem', letterSpacing: '0.1em' }}>Керамика и гранит с 2005 года</div>
+          <div style={{ color: '#444', fontSize: '0.75rem', letterSpacing: '0.1em' }}>
+            {t('footer.slogan')}
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
@@ -36,7 +41,9 @@ const Footer = () => {
           ))}
         </div>
 
-        <div style={{ color: '#333', fontSize: '0.75rem' }}>© 2026 ZarStone. Все права защищены.</div>
+        <div style={{ color: '#333', fontSize: '0.75rem' }}>
+          © 2026 ZarStone. {t('footer.rights')}.
+        </div>
       </div>
     </footer>
   );

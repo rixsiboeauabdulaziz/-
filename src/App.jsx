@@ -1,7 +1,6 @@
 
 import Home from './pages/Home';
-
-
+import './i18n' 
 import { Routes, Route } from "react-router-dom"
 import Navbar from "./components/Navbar"
 import Register from "./pages/Register"
@@ -45,6 +44,7 @@ function App() {
         <Route path="/orders" element={<MyOrders />} />
 
         {/* ADMIN  */}
+        {/* <ProtectedRoute  role="ADMIN"><AdminProducts /></ProtectedRoute> */}
         <Route path="/AdminProducts" element={<AdminProducts />} />
         <Route path="/AdminOrders" element={<AdminOrders/>} />
         <Route path="/AdminCategories" element={<AdminCategories />} />

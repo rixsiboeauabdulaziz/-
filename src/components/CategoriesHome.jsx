@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../axios';
+import { useTranslation } from 'react-i18next'; // Импорт хука
 
 const Categories = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation(); // Инициализация
   const [visible, setVisible] = useState(false);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,15 +32,15 @@ const Categories = () => {
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(30px)', transition: 'all 0.7s' }}>
           <p style={{ color: '#c9a96e', letterSpacing: '0.4em', fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-            Каталог
+            {t('catalog')}
           </p>
           <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300, marginBottom: '3rem', fontFamily: "'Cormorant Garamond', Georgia, serif", color: '#1a1a1a' }}>
-            Категории
+            {t('categories')}
           </h2>
         </div>
 
         {loading ? (
-          <p style={{ color: '#aaa', letterSpacing: '0.2em', fontSize: '0.8rem' }}>Загрузка...</p>
+          <p style={{ color: '#aaa', letterSpacing: '0.2em', fontSize: '0.8rem' }}>{t('loading')}</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.5rem' }}>
             {categories.map((cat, i) => (

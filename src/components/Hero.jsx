@@ -1,8 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // Импортируем хук
 
 const Hero = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation(); // Инициализируем перевод
 
   return (
     <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
@@ -17,7 +19,7 @@ const Hero = () => {
         transition: 'transform 8s ease',
       }} />
 
-      {/* ТЁМНЫЙ ОВЕРЛЕЙ — чтобы текст читался */}
+      {/* ТЁМНЫЙ ОВЕРЛЕЙ */}
       <div style={{
         position: 'absolute', inset: 0,
         background: 'linear-gradient(to right, rgba(10,8,6,0.82) 0%, rgba(10,8,6,0.45) 60%, rgba(10,8,6,0.15) 100%)',
@@ -38,7 +40,7 @@ const Hero = () => {
           animation: 'fadeUp 0.8s ease 0.2s both',
           fontFamily: 'Montserrat, sans-serif',
         }}>
-          ZarStone · Керамика и Гранит
+          {t('hero.subtitle')}
         </p>
 
         <h1 style={{
@@ -49,9 +51,9 @@ const Hero = () => {
           animation: 'fadeUp 0.8s ease 0.4s both',
           color: '#fff',
         }}>
-          Природная<br />
-          <span style={{ color: '#c9a96e', fontStyle: 'italic' }}>красота</span><br />
-          в каждой плите
+          {t('hero.titlePart1')}<br />
+          <span style={{ color: '#c9a96e', fontStyle: 'italic' }}>{t('hero.titlePart2')}</span><br />
+          {t('hero.titlePart3')}
         </h1>
 
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', animation: 'fadeUp 0.8s ease 0.6s both' }}>
@@ -68,7 +70,7 @@ const Hero = () => {
             onMouseEnter={e => e.target.style.background = '#b8913e'}
             onMouseLeave={e => e.target.style.background = '#c9a96e'}
           >
-            Смотреть каталог
+            {t('hero.catalogBtn')}
           </button>
           <button
             onClick={() => navigate('/contacts')}
@@ -84,7 +86,7 @@ const Hero = () => {
             onMouseEnter={e => { e.target.style.borderColor = '#c9a96e'; e.target.style.color = '#c9a96e'; }}
             onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.35)'; e.target.style.color = '#fff'; }}
           >
-            Связаться с нами
+            {t('hero.contactBtn')}
           </button>
         </div>
       </div>
@@ -96,7 +98,9 @@ const Hero = () => {
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem',
         animation: 'bounce 2s infinite',
       }}>
-        <span style={{ fontSize: '0.6rem', letterSpacing: '0.3em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>scroll</span>
+        <span style={{ fontSize: '0.6rem', letterSpacing: '0.3em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>
+          {t('hero.scroll')}
+        </span>
         <div style={{ width: '1px', height: '50px', background: 'linear-gradient(to bottom, rgba(201,169,110,0.8), transparent)' }} />
       </div>
 

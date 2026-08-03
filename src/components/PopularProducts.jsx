@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import instance from '../axios';
+import { useTranslation } from 'react-i18next'; // Импорт хука
 
 const HeartIcon = ({ filled }) => (
   <svg width="15" height="15" viewBox="0 0 24 24"
@@ -30,6 +31,7 @@ const S = {
 };
 
 const PopularProducts = () => {
+  const { t } = useTranslation(); // Инициализация
   const [products, setProducts]   = useState([]);
   const [loading, setLoading]     = useState(true);
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorites') || '[]'));
@@ -62,13 +64,13 @@ const PopularProducts = () => {
     <section style={S.section}>
       <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet" />
       <div style={S.inner}>
-        <p style={S.label}>Выбор покупателей</p>
-        <h2 style={S.heading}>Популярные товары</h2>
+        <p style={S.label}>{t('popular.label')}</p>
+        <h2 style={S.heading}>{t('popular.title')}</h2>
 
         {loading ? (
-          <div style={S.empty}>Загрузка...</div>
+          <div style={S.empty}>{t('loading')}</div>
         ) : products.length === 0 ? (
-          <div style={S.empty}>Товары не найдены</div>
+          <div style={S.empty}>{t('popular.notFound')}</div>
         ) : (
           <div style={S.grid}>
             {products.map(p => {
@@ -86,14 +88,14 @@ const PopularProducts = () => {
                   </div>
                   <div style={S.body}>
                     <div style={S.title}>{p.title}</div>
-                    {p.article && <div style={S.articul}>Арт: {p.article}</div>}
+                    {p.article && <div style={S.articul}>{t('popular.art')}: {p.article}</div>}
                     <div style={S.divider} />
                     <button
                       style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.65rem', color: isFilled ? '#c9a96e' : '#aaa', marginBottom: '0.9rem', cursor: 'pointer', background: 'none', border: 'none', padding: 0, fontFamily: 'inherit', letterSpacing: '0.04em', transition: 'color 0.2s' }}
                       onClick={(e) => { e.stopPropagation(); toggleFav(p); }}
                     >
                       <HeartIcon filled={isFilled} />
-                      {isFilled ? 'В избранном ✓' : 'В избранное'}
+                      {isFilled ? t('popular.inFav') : t('popular.toFav')}
                     </button>
                     <button
                       style={S.btn}
@@ -101,7 +103,7 @@ const PopularProducts = () => {
                       onMouseEnter={e => e.target.style.background = '#c9a96e'}
                       onMouseLeave={e => e.target.style.background = '#1a1a1a'}
                     >
-                      Подробнее
+                      {t('popular.more')}
                     </button>
                   </div>
                 </div>

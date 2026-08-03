@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import instance from '../axios';
  
 const HeartIcon = ({ filled }) => (
@@ -47,6 +48,7 @@ const s = {
 };
  
 const ProductPage = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
  
@@ -77,7 +79,7 @@ const ProductPage = () => {
         setCommentUser(data.username || '');
       })
       .catch(() => setCurrentUser(null));
-  }, []);
+  }, [isLoggedIn]);
  
   const [fav, setFav] = useState(() => {
     const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
@@ -116,7 +118,7 @@ const ProductPage = () => {
  
   const handleOrder = async () => {
     if (!orderName.trim() || !orderPhone.trim()) {
-      alert('Заполните имя и телефон');
+      alert(t('product.order_alert'));
       return;
     }
     setOrderLoading(true);
@@ -140,7 +142,7 @@ const ProductPage = () => {
     if (!commentText.trim()) return;
     setCommentSubmitting(true);
     try {
-      const userName = currentUser?.username || commentUser.trim() || 'Аноним';
+      const userName = currentUser?.username || commentUser.trim() || t('product.anon');
       const payload = { user: userName, text: commentText.trim() };
       const { data } = await instance.patch(`/products/${id}/comment`, payload);
       setComments(data?.comments || []);
@@ -156,22 +158,22 @@ const ProductPage = () => {
  
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c9a96e', fontSize: '0.75rem', letterSpacing: '0.4em', textTransform: 'uppercase' }}>
-      Загрузка...
+      {t('loading')}
     </div>
   );
   if (!product) return (
     <div style={{ minHeight: '100vh', background: '#f5f3ef', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa' }}>
-      Товар не найден
+      {t('product.not_found')}
     </div>
   );
  
   const images = product.images?.length ? product.images : product.img ? [product.img] : [];
   const specs = [
-    product.color    && { label: 'Цвет',      value: product.color },
-    product.material && { label: 'Материал',  value: product.material },
-    product.size     && { label: 'Размер',    value: product.size },
-    product.sku      && { label: 'Артикул',   value: product.sku },
-    product.category?.title && { label: 'Категория', value: product.category.title },
+    product.color    && { label: t('catalog.color'),      value: product.color },
+    product.material && { label: t('product.material'),  value: product.material },
+    product.size     && { label: t('product.size'),      value: product.size },
+    product.sku      && { label: t('popular.art'),   value: product.sku },
+    product.category?.title && { label: t('nav.categories'), value: product.category.title },
   ].filter(Boolean);
  
   return (
@@ -183,7 +185,7 @@ const ProductPage = () => {
         <button style={s.backBtn} onClick={() => navigate(-1)}
           onMouseEnter={e => e.currentTarget.style.color = '#c9a96e'}
           onMouseLeave={e => e.currentTarget.style.color = '#aaa'}>
-          ← &nbsp; Назад к каталогу
+          ← &nbsp; {t('product.back_to_catalog')}
         </button>
       </div>
  
@@ -217,11 +219,11 @@ const ProductPage = () => {
           <h1 style={s.title}>{product.title}</h1>
           {comments.length > 0 && (
             <div style={{ fontSize: '0.72rem', color: '#aaa', marginBottom: '0.5rem' }}>
-              💬 {comments.length} отзыв{comments.length === 1 ? '' : comments.length < 5 ? 'а' : 'ов'}
+              💬 {comments.length} {t('product.reviews_count')}
             </div>
           )}
           <div style={s.divider} />
-          <div style={s.price}>{product.price?.toLocaleString('ru-RU')} <span style={{ fontSize: '1rem', fontFamily: 'inherit' }}>UZS</span></div>
+          <div style={s.price}>{product.price?.toLocaleString('ru-RU')} <span style={{ fontSize: '1rem', fontFamily: 'inherit' }}>{t('catalog.currency')}</span></div>
           {product.desc && <p style={s.desc}>{product.desc}</p>}
           {specs.length > 0 && (
             <div style={s.specs}>
@@ -240,7 +242,7 @@ const ProductPage = () => {
             onMouseEnter={e => { if (!orderDone) e.currentTarget.style.background = '#b8913e'; }}
             onMouseLeave={e => { if (!orderDone) e.currentTarget.style.background = orderDone ? '#e8f5e9' : '#d4a853'; }}
           >
-            {orderDone ? '✓ Заявка отправлена' : 'Оставить заявку'}
+            {orderDone ? t('product.order_success') : t('product.leave_request')}
           </button>
  
           <button style={{ ...s.favBtn, color: fav ? '#c9a96e' : '#bbb' }} onClick={() => {
@@ -252,29 +254,29 @@ const ProductPage = () => {
             setFav(!fav);
             window.dispatchEvent(new Event('favoritesUpdated'));
           }}>
-            <HeartIcon filled={fav} /> В избранное
+            <HeartIcon filled={fav} /> {fav ? t('popular.inFav') : t('popular.toFav')}
           </button>
         </div>
       </div>
  
       {/* COMMENTS */}
       <div style={s.sectionBlock}>
-        <div style={s.sectionLabel}>Мнения клиентов</div>
-        <h3 style={s.sectionTitle}>Отзывы {comments.length > 0 && <span style={{ fontSize: '1rem', color: '#bbb', fontFamily: 'Montserrat, sans-serif' }}>({comments.length})</span>}</h3>
+        <div style={s.sectionLabel}>{t('product.opinions')}</div>
+        <h3 style={s.sectionTitle}>{t('product.reviews')} {comments.length > 0 && <span style={{ fontSize: '1rem', color: '#bbb', fontFamily: 'Montserrat, sans-serif' }}>({comments.length})</span>}</h3>
         <div style={s.commentsGrid}>
-
+ 
           {/* ── СПИСОК КОММЕНТАРИЕВ СО СКРОЛЛОМ ── */}
           <div style={{ maxHeight: '420px', overflowY: 'auto', paddingRight: '0.5rem' }}>
             {comments.length === 0 ? (
               <div style={{ padding: '2.5rem', background: '#fff', borderRadius: '4px', textAlign: 'center', color: '#ccc', fontSize: '0.82rem' }}>
-                Пока нет отзывов. Будьте первым!
+                {t('product.no_reviews')}
               </div>
             ) : [...comments].reverse().map((c, i) => (
               <div key={c._id || i} style={s.commentItem}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.6rem' }}>
                   <div style={s.avatar}>{(c.user || 'А')[0].toUpperCase()}</div>
                   <div>
-                    <div style={{ fontSize: '0.82rem', color: '#333', fontWeight: 600 }}>{c.user || 'Аноним'}</div>
+                    <div style={{ fontSize: '0.82rem', color: '#333', fontWeight: 600 }}>{c.user || t('product.anon')}</div>
                     {c.createdAt && <div style={{ fontSize: '0.65rem', color: '#bbb' }}>{new Date(c.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>}
                   </div>
                 </div>
@@ -282,29 +284,29 @@ const ProductPage = () => {
               </div>
             ))}
           </div>
-
+ 
           {/* ── ФОРМА ОТЗЫВА ── */}
           <div>
-            <h4 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '1.2rem', fontWeight: 300, color: '#555', marginBottom: '1.5rem' }}>Оставить отзыв</h4>
-            <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.45rem' }}>Ваше имя</div>
+            <h4 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '1.2rem', fontWeight: 300, color: '#555', marginBottom: '1.5rem' }}>{t('product.leave_review')}</h4>
+            <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.45rem' }}>{t('contacts.name')}</div>
             <input
               style={{ ...s.formInput, background: currentUser ? '#f9f9f9' : '#fff', color: currentUser ? '#aaa' : '#444' }}
               value={commentUser}
               onChange={e => setCommentUser(e.target.value)}
-              placeholder="Необязательно"
+              placeholder={t('product.optional')}
               readOnly={!!currentUser}
               onFocus={e => e.target.style.borderColor = '#c9a96e'}
               onBlur={e => e.target.style.borderColor = '#e0dbd2'}
             />
-            <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.45rem' }}>Комментарий</div>
+            <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.45rem' }}>{t('product.comment')}</div>
             <textarea style={{ ...s.formInput, resize: 'none', lineHeight: 1.6, marginBottom: '1.2rem' }} rows={5} value={commentText}
-              onChange={e => setCommentText(e.target.value)} placeholder="Поделитесь впечатлением о товаре..."
+              onChange={e => setCommentText(e.target.value)} placeholder={t('product.comment_placeholder')}
               onFocus={e => e.target.style.borderColor = '#c9a96e'} onBlur={e => e.target.style.borderColor = '#e0dbd2'} />
             <button style={{ ...s.btnSubmit, background: commentSuccess ? '#d4a853' : 'transparent', color: commentSuccess ? '#fff' : '#c9a96e' }}
               onClick={handleCommentSubmit} disabled={commentSubmitting || !commentText.trim()}
               onMouseEnter={e => { if (!commentSuccess) { e.currentTarget.style.background = '#d4a853'; e.currentTarget.style.color = '#fff'; } }}
               onMouseLeave={e => { if (!commentSuccess) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#c9a96e'; } }}>
-              {commentSuccess ? '✓ Отзыв добавлен' : commentSubmitting ? 'Отправка...' : 'Опубликовать отзыв'}
+              {commentSuccess ? t('product.comment_success') : commentSubmitting ? t('product.sending') : t('product.publish_review')}
             </button>
           </div>
         </div>
@@ -313,8 +315,8 @@ const ProductPage = () => {
       {/* RELATED */}
       {related.length > 0 && (
         <div style={{ ...s.sectionBlock, paddingBottom: '5rem' }}>
-          <div style={s.sectionLabel}>Смотрите также</div>
-          <h3 style={s.sectionTitle}>Похожие товары</h3>
+          <div style={s.sectionLabel}>{t('product.see_also')}</div>
+          <h3 style={s.sectionTitle}>{t('product.similar_products')}</h3>
           <div style={s.relGrid}>
             {related.map(p => (
               <div key={p._id} style={s.relCard}
@@ -326,10 +328,10 @@ const ProductPage = () => {
                   : <div style={{ ...s.relImg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', opacity: 0.3 }}>🪨</div>}
                 <div style={s.relBody}>
                   <div style={{ fontSize: '0.72rem', color: '#333', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>{p.title}</div>
-                  {p.sku && <div style={{ fontSize: '0.65rem', color: '#bbb', marginBottom: '0.3rem' }}>Артикул: {p.sku}</div>}
-                  <div style={{ fontSize: '0.85rem', color: '#c9a96e', fontWeight: 600 }}>{p.price?.toLocaleString('ru-RU')} UZS</div>
+                  {p.sku && <div style={{ fontSize: '0.65rem', color: '#bbb', marginBottom: '0.3rem' }}>{t('popular.art')}: {p.sku}</div>}
+                  <div style={{ fontSize: '0.85rem', color: '#c9a96e', fontWeight: 600 }}>{p.price?.toLocaleString('ru-RU')} {t('catalog.currency')}</div>
                   <button style={s.relBtn} onMouseEnter={e => e.target.style.background = '#b8913e'} onMouseLeave={e => e.target.style.background = '#d4a853'}>
-                    Описание товара
+                    {t('popular.more')}
                   </button>
                 </div>
               </div>
@@ -345,7 +347,7 @@ const ProductPage = () => {
  
           <div style={{ background: '#fff', borderRadius: '8px', padding: '2.5rem', width: '380px', fontFamily: "'Montserrat', sans-serif" }}>
             <div style={{ fontSize: '0.65rem', color: '#c9a96e', letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
-              Оформление заявки
+              {t('product.order_title')}
             </div>
             <h3 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '1.5rem', fontWeight: 300, color: '#1a1a1a', marginBottom: '1.5rem' }}>
               {product.title}
@@ -355,19 +357,19 @@ const ProductPage = () => {
               <div style={{ background: '#fdf8f0', border: '1px solid #e8d9b8', borderRadius: '6px', padding: '1.4rem', marginBottom: '1.5rem', textAlign: 'center' }}>
                 <div style={{ fontSize: '1.6rem', marginBottom: '0.6rem' }}>👤</div>
                 <div style={{ fontSize: '0.78rem', color: '#7a6a4e', lineHeight: 1.6, marginBottom: '1.2rem' }}>
-                  Для быстрого оформления заявки войдите в аккаунт — имя и телефон заполнятся автоматически
+                  {t('product.login_hint')}
                 </div>
                 <div style={{ display: 'flex', gap: '0.6rem' }}>
                   <Link to="/login" style={{ flex: 1, background: '#d4a853', borderRadius: '50px', color: '#fff', padding: '0.65rem', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    Войти
+                    {t('auth.login')}
                   </Link>
                   <Link to="/register" style={{ flex: 1, background: 'transparent', border: '1px solid #d4a853', borderRadius: '50px', color: '#c9a96e', padding: '0.65rem', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    Регистрация
+                    {t('auth.register')}
                   </Link>
                 </div>
                 <button onClick={() => { setOrderModal(false); setTimeout(() => setOrderModal('manual'), 10); }}
                   style={{ marginTop: '0.8rem', background: 'none', border: 'none', color: '#bbb', fontSize: '0.65rem', cursor: 'pointer', letterSpacing: '0.1em', fontFamily: 'inherit' }}>
-                  Продолжить без входа
+                  {t('product.continue_no_login')}
                 </button>
               </div>
             ) : (
@@ -379,16 +381,16 @@ const ProductPage = () => {
                   <div style={{ fontSize: '0.82rem', color: '#333', fontWeight: 600 }}>{orderName || '—'}</div>
                   <div style={{ fontSize: '0.72rem', color: '#aaa' }}>{orderPhone || '—'}</div>
                 </div>
-                <div style={{ marginLeft: 'auto', fontSize: '0.6rem', color: '#c9a96e', letterSpacing: '0.1em' }}>✓ Автозаполнение</div>
+                <div style={{ marginLeft: 'auto', fontSize: '0.6rem', color: '#c9a96e', letterSpacing: '0.1em' }}>✓ {t('product.autofill')}</div>
               </div>
             )}
  
             {orderModal === 'manual' && (
               <>
-                <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Ваше имя</div>
-                <input style={{ ...s.formInput, marginBottom: '1rem' }} value={orderName} onChange={e => setOrderName(e.target.value)} placeholder="Как вас зовут?"
+                <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>{t('contacts.name')}</div>
+                <input style={{ ...s.formInput, marginBottom: '1rem' }} value={orderName} onChange={e => setOrderName(e.target.value)} placeholder={t('product.name_placeholder')}
                   onFocus={e => e.target.style.borderColor = '#c9a96e'} onBlur={e => e.target.style.borderColor = '#e0dbd2'} />
-                <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Телефон</div>
+                <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>{t('contacts.phone')}</div>
                 <input style={{ ...s.formInput, marginBottom: '1.5rem' }} value={orderPhone} onChange={e => setOrderPhone(e.target.value)} placeholder="+998 __ ___ __ __"
                   onFocus={e => e.target.style.borderColor = '#c9a96e'} onBlur={e => e.target.style.borderColor = '#e0dbd2'} />
               </>
@@ -396,7 +398,7 @@ const ProductPage = () => {
  
             {(isLoggedIn || orderModal === 'manual') && (
               <>
-                <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Количество</div>
+                <div style={{ fontSize: '0.65rem', color: '#aaa', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.4rem' }}>{t('product.quantity')}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.8rem' }}>
                   <button onClick={() => setOrderQty(q => Math.max(1, q - 1))}
                     style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid #e0dbd2', background: '#fff', cursor: 'pointer', fontSize: '1.2rem', color: '#888' }}>−</button>
@@ -404,20 +406,20 @@ const ProductPage = () => {
                   <button onClick={() => setOrderQty(q => q + 1)}
                     style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid #e0dbd2', background: '#fff', cursor: 'pointer', fontSize: '1.2rem', color: '#888' }}>+</button>
                   <span style={{ fontSize: '0.82rem', color: '#c9a96e', marginLeft: 'auto', fontWeight: 600 }}>
-                    {(product.price * orderQty).toLocaleString('ru-RU')} UZS
+                    {(product.price * orderQty).toLocaleString('ru-RU')} {t('catalog.currency')}
                   </span>
                 </div>
  
                 <button style={{ ...s.btnMain, marginBottom: '0.6rem', opacity: orderLoading ? 0.7 : 1 }}
                   onClick={handleOrder} disabled={orderLoading}>
-                  {orderLoading ? 'Отправка...' : 'Подтвердить заявку'}
+                  {orderLoading ? t('product.sending') : t('product.confirm_order')}
                 </button>
               </>
             )}
  
             <button style={{ ...s.favBtn, width: '100%', justifyContent: 'center', color: '#bbb' }}
               onClick={() => setOrderModal(false)}>
-              Отмена
+              {t('product.cancel')}
             </button>
           </div>
         </div>
